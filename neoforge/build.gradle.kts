@@ -1,5 +1,5 @@
 plugins {
-    javaLibrary
+    `java-library`
     id("net.neoforged.moddev").version("2.0.147")
 }
 

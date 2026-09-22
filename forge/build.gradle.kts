@@ -1,7 +1,7 @@
 // Forge nur fuer 1.21.x. Kein 26.x CalVer-Support durch Forge.
 // Fuer 26.x bitte den NeoForge-Build nutzen.
 plugins {
-    javaLibrary
+    `java-library`
     id("net.minecraftforge.gradle").version("7.0.40")
 }
 
