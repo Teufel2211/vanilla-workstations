@@ -494,7 +494,7 @@ jobs:
           -Pforge_version=${{ matrix.forge }}
           -Pjava_version=${{ matrix.java }}
           ${{ matrix.module }} --no-daemon
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         with:
           name: vanilla-workstations-${{ matrix.mc }}-${{ matrix.loader }}
           path: ${{ matrix.loader }}/build/libs/*.jar
