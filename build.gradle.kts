@@ -1,8 +1,12 @@
+import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.api.tasks.compile.JavaCompile
+import org.gradle.language.jvm.tasks.ProcessResources
+
 // Root: keine Plugins, nur Defaults. Loom/ModDev/ForgeGradle kommen pro Modul.
 subprojects {
     apply(plugin = "java")
 
-    java {
+    extensions.configure<JavaPluginExtension> {
         withSourcesJar()
         val jv = providers.gradleProperty("java_version").get().toInt()
         sourceCompatibility = JavaVersion.toVersion(jv)
