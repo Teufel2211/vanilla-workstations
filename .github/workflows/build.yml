@@ -59,8 +59,11 @@ jobs:
       - uses: gradle/actions/setup-gradle@v5
         with:
           gradle-version: 9.7.1
-      - run: gradle :fabric:remapJar --no-daemon
+      - run: gradle :fabric:remapJar :neoforge:build :forge:build --no-daemon
       - uses: softprops/action-gh-release@v2
         with:
-          files: fabric/build/libs/*.jar
+          files: |
+            fabric/build/libs/*.jar
+            neoforge/build/libs/*.jar
+            forge/build/libs/*.jar
           generate_release_notes: true
