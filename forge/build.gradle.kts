@@ -49,6 +49,7 @@ dependencies {
     val mc = providers.gradleProperty("minecraft_version").get()
     val fg = providers.gradleProperty("forge_version").get()
     // FG7: Minecraft-Abhaengigkeit ueber minecraft.dependency(..) als implementation.
+    // Kein eventbus-validator: Projekt nutzt kein EventBus (reines Vanilla-API);
+    // der Validator bricht :forge:compileJava auf CI-JVM 25 ab (Run 35737564832).
     implementation(minecraft.dependency("net.minecraftforge:forge:$mc-$fg"))
-    annotationProcessor("net.minecraftforge:eventbus-validator:7.0.5")
 }
