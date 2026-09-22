@@ -26,8 +26,9 @@ nicht blind übernehmen.
 
 ## Toolchain (verifiziert)
 
-- Fabric Loom 1.7.4, NeoForge ModDev 2.0.147, ForgeGradle 7.0.40, Gradle 8.11.1.
-- CI: `:fabric:build` ist Pflicht (grün). NeoForge/Forge laufen als
+- Fabric Loom 1.18.2, NeoForge ModDev 2.0.147, ForgeGradle 7.0.40, Gradle 9.3.0.
+- CI-Runtime: JVM 25 (Loom-1.18.2-Pflicht); Code-Target bleibt Java 21 fuer MC 1.21.1.
+- CI: `:fabric:build` ist Pflicht (gruen). NeoForge/Forge laufen als
   `loaders-experimental` mit `continue-on-error` bis lokal verifiziert.
 
 ## Verifizierung (PowerShell-Muster)

@@ -8,6 +8,7 @@ on:
 
 jobs:
   # Fabric: Pflicht, muss gruen sein (alle Versionen verifiziert).
+  # Loom 1.18.2 braucht JVM 25 als Gradle-Runtime; Code-Target bleibt 21 (java_version).
   fabric:
     runs-on: ubuntu-latest
     steps:
@@ -15,13 +16,14 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 21
+          java-version: 25
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: 9.3.0
       - run: gradle :fabric:build --no-daemon
 
   # NeoForge + Forge: experimentell bis lokal verifiziert (siehe Issue #1).
+  # Gleiche Runtime (JVM 25), damit Settings-Konfiguration (:fabric) nicht schon failt.
   loaders-experimental:
     runs-on: ubuntu-latest
     continue-on-error: true
@@ -33,7 +35,7 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 21
+          java-version: 25
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: 9.3.0
@@ -51,7 +53,7 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 21
+          java-version: 25
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: 9.3.0
