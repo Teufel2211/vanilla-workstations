@@ -43,8 +43,9 @@ jobs:
           gradle-version: 9.7.1
       - run: gradle ${{ matrix.module }} --no-daemon
 
-  # Autotag: bei jedem main-Push automatisch Patch-Tag erstellen (vX.Y.Z -> vX.Y.(Z+1)).
-  # Der Tag-Push triggert einen neuen Workflow-Run, in dem der release-Job laeuft.
+  # Autotag: bei jedem main-Push automatisch Patch-Tag erstellen (vX.Y.Z -> vX.Y.(Z+1))
+  # + Release im SELBEN Run bauen (GITHUB_TOKEN-Tag-Push triggert per GitHub-Design
+  # keinen neuen Run -> Tag-Run kaeme nie; manueller v*-Push nutzt weiter release-Job).
   # Kein Loop: dieser Job laeuft per if nur auf main-Heads, nie auf Tag-Refs.
   autotag:
     if: github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, '[skip release]')
@@ -76,6 +77,27 @@ jobs:
             exit 1
           fi
           git tag "$NEXT" && git push origin "$NEXT"
+          echo "NEXT_TAG=$NEXT" >> $GITHUB_ENV
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 25
+      - uses: gradle/actions/setup-gradle@v5
+        with:
+          gradle-version: 9.7.1
+      - name: Build Loader-Jars fuer Auto-Release
+        run: |
+          MOD_VERSION=${NEXT_TAG#v}
+          echo "Building $NEXT_TAG (mod_version=$MOD_VERSION)"
+          gradle -Pmod_version=$MOD_VERSION :fabric:remapJar :neoforge:build :forge:build --no-daemon
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.NEXT_TAG }}
+          files: |
+            fabric/build/libs/*.jar
+            neoforge/build/libs/*.jar
+            forge/build/libs/*.jar
+          generate_release_notes: true
 
   # Nur GitHub Releases. Kein Modrinth/CurseForge-Publish.
   release:
