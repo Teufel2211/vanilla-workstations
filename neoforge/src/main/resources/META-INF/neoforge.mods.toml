@@ -1,0 +1,25 @@
+modLoader = "javafml"
+loaderVersion = "[4,)"
+license = "MIT"
+issueTrackerURL = "https://github.com/Teufel2211/vanilla-workstations/issues"
+
+[[mods]]
+modId = "vanilla_workstations"
+version = "${version}"
+displayName = "Vanilla Workstations"
+authors = "Teufel2211"
+description = "Nutzlose Bloecke sinnvoll machen: Fletching Table, Hopper-Filter, Composter-Fix."
+
+[[dependencies.vanilla_workstations]]
+modId = "neoforge"
+type = "required"
+versionRange = "[21.1,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.vanilla_workstations]]
+modId = "minecraft"
+type = "required"
+versionRange = "[1.21, 26.4)"
+ordering = "NONE"
+side = "BOTH"

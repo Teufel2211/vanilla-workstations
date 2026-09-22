@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "quilt_loader": {
+    "group": "de.teufel2211.workstations",
+    "id": "vanilla_workstations",
+    "version": "${version}",
+    "metadata": {
+      "name": "Vanilla Workstations",
+      "description": "Nutzlose Bloecke sinnvoll machen: Fletching Table, Hopper-Filter, Composter-Fix.",
+      "authors": ["Teufel2211"],
+      "contact": {
+        "sources": "https://github.com/Teufel2211/vanilla-workstations"
+      }
+    },
+    "intermediate_mappings": "net.fabricmc:intermediary",
+    "entrypoints": {
+      "init": "de.teufel2211.workstations.fabric.VanillaWorkstationsFabric"
+    },
+    "depends": [
+      {
+        "id": "quilt_loader",
+        "versions": ">=0.26.4"
+      },
+      {
+        "id": "quilted_fabric_api",
+        "versions": "*"
+      },
+      {
+        "id": "minecraft",
+        "versions": ">=1.21 <26.4"
+      },
+      {
+        "id": "java",
+        "versions": ">=21"
+      }
+    ]
+  }
+}

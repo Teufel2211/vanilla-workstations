@@ -1,0 +1,62 @@
+name: build
+
+on:
+  push:
+    branches: ["main", "mc/**"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  # Fabric: Pflicht, muss gruen sein (alle Versionen verifiziert).
+  fabric:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.11.1
+      - run: gradle :fabric:build --no-daemon
+
+  # NeoForge + Forge: experimentell bis lokal verifiziert (siehe Issue #1).
+  loaders-experimental:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    strategy:
+      matrix:
+        module: [":neoforge:build", ":forge:build"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.11.1
+      - run: gradle ${{ matrix.module }} --no-daemon
+
+  # Nur GitHub Releases. Kein Modrinth/CurseForge-Publish.
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [fabric]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.11.1
+      - run: gradle :fabric:remapJar --no-daemon
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: fabric/build/libs/*.jar
+          generate_release_notes: true
