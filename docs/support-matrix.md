@@ -1,4 +1,4 @@
-# Support-Matrix: 1.21 bis 26.3
+# Support-Matrix: 1.21 bis 26.3 (Vollmatrix, Owner-Vorgabe)
 
 Strategie: **ein Branch pro MC-Linie**, `main` folgt der neuesten stabilen Linie.
 Geteilte Quellen in `/shared` (reines `net.minecraft`-API), Loader-Anbindung
@@ -7,36 +7,61 @@ der Fabric-Build enthält `quilt.mod.json` und läuft mit QFAPI.
 
 ## Loader-Wahrheiten
 
-- **Fabric:** stabil auf allen Linien (Loader ist versionsagnostisch).
-- **NeoForge:** pro MC-Linie eigene Major (21.x = 1.21.1). 26.x braucht NeoForge-26.x.
-- **Forge:** nur 1.21.x (1.21.1 = Forge 52.x). **Kein 26.x CalVer-Support.**
+- **Fabric:** 1.21.x via Yarn; 26.x via offizielle Mojang-Mappings
+  (`loom.officialMojangMappings()`, Schalter `-Puse_official_mappings=true`
+  in `fabric/build.gradle.kts`), weil Yarn/Intermediary kein 26.x enthalten.
+- **NeoForge:** pro MC-Linie eigene Major. Ohne stabile Linie -> neueste Beta
+  (21.2.1-beta, 21.6.20-beta, 21.7.25-beta, 21.9.16-beta, 26.1.0.19-beta,
+  26.1.1.15-beta, 26.3.0.8-beta). 26.x braucht NeoForge-26.x.
+- **Forge:** 1.21.x UND 26.x (Owner-Vorgabe, explizit gewuenscht).
+  26.x-Pins aus Forge-Maven (26.1-62.0.9 bis 26.3-66.0.2).
+  Einzige Luecke: **1.21.2 hat KEIN Forge-Artefakt** (siehe unten).
 - **Quilt:** läuft über den Fabric-Jar (kein separates Build).
 
-## Versionen (gegen Maven verifiziert, Stand 2026-09-22, CI-Matrix in build.yml)
+## Versionen (NEUESTE Koordinate je Linie, per Invoke-WebRequest gegen Maven verifiziert, Stand 2026-09-22, CI-Matrix in build.yml)
 
-| MC | Yarn | Fabric API | NeoForge | Forge (kurz) | Java | Loader in Matrix |
-|----|------|------------|----------|--------------|------|------------------|
-| 1.21.1 | 1.21.1+build.3 | 0.109.0+1.21.1 (Baseline-Pin) | 21.1.251 | 52.1.9 | 21 | fabric, neoforge, forge |
-| 1.21.4 | 1.21.4+build.8 | 0.119.4+1.21.4 | 21.4.157 | 54.1.8 | 21 | fabric, neoforge, forge |
-| 1.21.8 | 1.21.8+build.1 | 0.136.1+1.21.8 | 21.8.54 | 58.1.9 | 21 | fabric, neoforge, forge |
-| 1.21.11 | 1.21.11+build.6 | 0.141.6+1.21.11 | 21.11.45 | 61.2.1 | 21 | fabric, neoforge, forge |
-| 26.1.2 | — (kein Yarn) | 0.155.3+26.1.2 | 26.1.2.109 | — | 25 | neoforge |
-| 26.2 | — (kein Yarn) | 0.161.0+26.2 | 26.2.0.88 | — | 25 | neoforge |
+| MC | Yarn | Fabric API | NeoForge | Forge (kurz, voll = MC-kurz) | Java | Loader in Matrix |
+|----|------|------------|----------|------------------------------|------|------------------|
+| 1.21 | 1.21+build.9 | 0.99.5+1.21 | 21.0.167 | 51.0.33 (1.21-51.0.33) | 21 | fabric, neoforge, forge |
+| 1.21.1 | 1.21.1+build.3 | 0.116.9+1.21.1 | 21.1.251 | 52.1.16 (1.21.1-52.1.16) | 21 | fabric, neoforge, forge |
+| 1.21.2 | 1.21.2+build.1 | 0.106.1+1.21.2 | 21.2.1-beta (kein stabil) | — (kein Artefakt) | 21 | fabric, neoforge |
+| 1.21.3 | 1.21.3+build.2 | 0.114.1+1.21.3 | 21.3.97 | 53.1.12 (1.21.3-53.1.12) | 21 | fabric, neoforge, forge |
+| 1.21.4 | 1.21.4+build.8 | 0.119.4+1.21.4 | 21.4.157 | 54.1.18 (1.21.4-54.1.18) | 21 | fabric, neoforge, forge |
+| 1.21.5 | 1.21.5+build.1 | 0.128.2+1.21.5 | 21.5.98 | 55.1.13 (1.21.5-55.1.13) | 21 | fabric, neoforge, forge |
+| 1.21.6 | 1.21.6+build.1 | 0.128.2+1.21.6 | 21.6.20-beta (kein stabil) | 56.0.9 (1.21.6-56.0.9) | 21 | fabric, neoforge, forge |
+| 1.21.7 | 1.21.7+build.8 | 0.129.0+1.21.7 | 21.7.25-beta (kein stabil) | 57.0.3 (1.21.7-57.0.3) | 21 | fabric, neoforge, forge |
+| 1.21.8 | 1.21.8+build.1 | 0.136.1+1.21.8 | 21.8.54 | 58.1.22 (1.21.8-58.1.22) | 21 | fabric, neoforge, forge |
+| 1.21.9 | 1.21.9+build.1 | 0.134.1+1.21.9 | 21.9.16-beta (kein stabil) | 59.0.5 (1.21.9-59.0.5) | 21 | fabric, neoforge, forge |
+| 1.21.10 | 1.21.10+build.3 | 0.138.4+1.21.10 | 21.10.64 | 60.1.15 (1.21.10-60.1.15) | 21 | fabric, neoforge, forge |
+| 1.21.11 | 1.21.11+build.6 | 0.141.6+1.21.11 | 21.11.45 | 61.2.1 (1.21.11-61.2.1) | 21 | fabric, neoforge, forge |
+| 26.1 | — (kein Yarn, officialMappings) | 0.145.1+26.1 | 26.1.0.19-beta (kein stabil) | 62.0.9 (26.1-62.0.9) | 25 | fabric, neoforge, forge |
+| 26.1.1 | — (kein Yarn, officialMappings) | 0.145.4+26.1.1 | 26.1.1.15-beta (kein stabil) | 63.0.2 (26.1.1-63.0.2) | 25 | fabric, neoforge, forge |
+| 26.1.2 | — (kein Yarn, officialMappings) | 0.155.3+26.1.2 | 26.1.2.109 | 64.1.3 (26.1.2-64.1.3) | 25 | fabric, neoforge, forge |
+| 26.2 | — (kein Yarn, officialMappings) | 0.161.0+26.2 | 26.2.0.88 | 65.1.3 (26.2-65.1.3) | 25 | fabric, neoforge, forge |
+| 26.3 | — (kein Yarn, officialMappings) | 0.161.0+26.3 | 26.3.0.8-beta (kein stabil) | 66.0.2 (26.3-66.0.2) | 25 | fabric, neoforge, forge |
 
-Ausgelassen (begruendet): **26.3** (Mojang-Release vom 2026-09-15, FAPI
-0.161.0+26.3 vorhanden, aber NeoForge nur Beta 26.3.0.0–0.8, kein Yarn/Intermediary
-fuer 26.x) sowie **Fabric-26.x** generell (Yarn- und Intermediary-Metadaten enthalten
-kein einziges 26.x-Mapping) und **Forge-26.x** (in Maven vorhanden, z. B.
-26.3-66.0.2, aber per Vorgabe nur 1.21.x in der Matrix). Zwischen-Patches
-(1.21.2/1.21.3/1.21.5–1.21.7/1.21.9/1.21.10, 26.1/26.1.1) teils ohne stabile
-NeoForge-Linie (21.2/21.6/21.7/21.9 = 0 stabile) und daher nicht als geschlossener
-Satz baubar; abgedeckt ueber frueh/mitte/spaet/latest-Samples der 1.21-Linie.
+Summe: 50 Matrix-Zeilen (17x3 minus forge-1.21.2).
+
+Ausgelassen (einzige, mit hartem Beleg): **forge-1.21.2**.
+`https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml`
+enthaelt NULL `<version>` mit `1.21.2` (per Invoke-WebRequest geprueft:
+`[regex]::Matches($forge,"<version>([^<]*1\.21\.2[^<]*)</version>")` = leer).
+Alle anderen Forge-Linien existieren (1.21-51.0.33 bis 1.21.11-61.2.1,
+26.1-62.0.9, 26.1.1-63.0.2, 26.1.2-64.1.3, 26.2-65.1.3, 26.3-66.0.2).
+Fabric-1.21.2/NeoForge-1.21.2-Zeilen nutzen forge-Platzhalter 53.1.12
+(naechste reale Linie, wird nie gebaut, nur fuer :forge-Config).
+
+Belege 26.x-Fabric:
+`https://maven.fabricmc.net/net/fabricmc/yarn/maven-metadata.xml` enthaelt NULL
+`<version>(26\.[^<]*)</version>`; ebenso
+`https://maven.fabricmc.net/net/fabricmc/intermediary/maven-metadata.xml`
+(NULL 26.x). Darum Fabric-26.x mit `officialMojangMappings()` statt Yarn.
 
 ## Toolchain (verifiziert)
 
 - Fabric Loom 1.18.2, NeoForge ModDev 2.0.147, ForgeGradle 7.0.40, Gradle 9.7.1.
 - CI-Runtime: JVM 25 (Loom-1.18.2-Pflicht: JVM >= 25 + Gradle-Plugin-API 9.7.0);
-  Code-Target bleibt Java 21 fuer MC 1.21.1.
+  Code-Target per -Pjava_version (21 fuer 1.21.x, 25 fuer 26.x).
 - CI: `:fabric:build` (Baseline 1.21.1) ist Pflicht (gruen, Release-Gate).
   Zusaetzlich baut der Matrix-Job `build` alle Tabellen-Kombis per -P-Override
   (`fail-fast: false`, Artefakte via upload-artifact, nicht im Release).
@@ -56,6 +81,16 @@ Satz baubar; abgedeckt ueber frueh/mitte/spaet/latest-Samples der 1.21-Linie.
 Analog für `fabric-loader`, `fabric-api`, NeoForge
 (`https://maven.neoforged.net/releases/net/neoforged/neoforge/maven-metadata.xml`),
 Forge (`https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml`).
+Negativ-Beleg Forge-1.21.2:
+```powershell
+$forge=(Invoke-WebRequest -UseBasicParsing -Uri "https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml").Content
+[regex]::Matches($forge,"<version>([^<]*1\.21\.2[^<]*)</version>").Count  # = 0
+```
+Negativ-Beleg Yarn-26.x:
+```powershell
+$yarn=(Invoke-WebRequest -UseBasicParsing -Uri "https://maven.fabricmc.net/net/fabricmc/yarn/maven-metadata.xml").Content
+[regex]::Matches($yarn,"<version>(26\.[^<]*)</version>").Count  # = 0
+```
 
 ## Release-Naming (nur GitHub Releases)
 

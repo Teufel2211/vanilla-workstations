@@ -24,13 +24,23 @@ jobs:
           gradle-version: 9.7.1
       - run: gradle :fabric:build --no-daemon
 
-  # Matrix: EIN Run baut alle MC-Linien x Loader. Versionen je Kombi per -P-Override
-  # (Skripte lesen alles via providers.gradleProperty). Pins gegen Maven verifiziert
-  # (Stand 2026-09-22, Details docs/support-matrix.md). Nur geschlossene Saetze:
-  # Fabric braucht Yarn (kein Yarn fuer 26.x -> kein Fabric-26.x); Forge nur 1.21.x;
-  # NeoForge-26.3 nur Beta -> 26.3 ausgelassen. Include-Liste statt mc-x-loader-Kartesisch,
-  # weil Deps pro MC-Linie unterschiedlich pinnen (kein exclude noetig).
-  # Runtime fix JVM 25 (Loom-1.18.2-Pflicht); -Pjava_version steuert das Code-Target
+  # Matrix: EIN Run baut alle MC-Versionen x Loader (Owner-Vorgabe Vollmatrix).
+  # 17 MC-Versionen: 1.21, 1.21.1-1.21.11, 26.1, 26.1.1, 26.1.2, 26.2, 26.3.
+  # Loader: fabric, neoforge, forge (Quilt via Fabric-Jar). 50 Zeilen:
+  # 17x3 minus forge-1.21.2 (kein Artefakt in Forge-Maven, siehe unten).
+  # Pins = NEUESTE Koordinate je Linie, per Invoke-WebRequest gegen Maven verifiziert
+  # (Stand 2026-09-22, Details docs/support-matrix.md). Beta/RC wo noetig:
+  # NeoForge ohne stabile Linie -> neueste Beta (21.2.1-beta, 21.6.20-beta,
+  # 21.7.25-beta, 21.9.16-beta, 26.1.0.19-beta, 26.1.1.15-beta, 26.3.0.8-beta).
+  # Forge-26.x EXPLIZIT gewuenscht (26.1-62.0.9 bis 26.3-66.0.2 aus Forge-Maven).
+  # Fabric-26.x via officialMojangMappings (kein Yarn/Intermediary-26.x in
+  # Fabric-Maven); Schalter -Puse_official_mappings (fabric/build.gradle.kts).
+  # Fuer 26.x-Zeilen (auch neoforge/forge) official=true, damit :fabric-Config
+  # kein Yarn aufloest (settings.gradle konfiguriert ALLE Module).
+  # Einzige Auslassung: forge-1.21.2 (maven-metadata.xml enthaelt NULL
+  # <version> mit 1.21.2; gepruefte URL siehe support-matrix.md).
+  # Include-Liste statt Kartesisch, weil Deps pro MC-Linie unterschiedlich pinnen.
+  # Runtime fix JVM 25 (Loom-1.18.2-Pflicht); -Pjava_version steuert Code-Target
   # (21 fuer 1.21.x, 25 fuer 26.x). fail-fast:false -> volle Status-Tabelle pro Run.
   # Artefakte nur als Build-Artefakte (NICHT im GitHub Release).
   build:
@@ -39,78 +49,296 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - mc: "1.21"
+            loader: fabric
+            module: ":fabric:build"
+            yarn: "1.21+build.9"
+            fapi: "0.99.5+1.21"
+            neo: "21.0.167"
+            forge: "51.0.33"
+            java: "21"
+            official: "false"
+          - mc: "1.21"
+            loader: neoforge
+            module: ":neoforge:build"
+            yarn: "1.21+build.9"
+            fapi: "0.99.5+1.21"
+            neo: "21.0.167"
+            forge: "51.0.33"
+            java: "21"
+            official: "false"
+          - mc: "1.21"
+            loader: forge
+            module: ":forge:build"
+            yarn: "1.21+build.9"
+            fapi: "0.99.5+1.21"
+            neo: "21.0.167"
+            forge: "51.0.33"
+            java: "21"
+            official: "false"
           - mc: "1.21.1"
             loader: fabric
             module: ":fabric:build"
             yarn: "1.21.1+build.3"
-            fapi: "0.109.0+1.21.1"
+            fapi: "0.116.9+1.21.1"
             neo: "21.1.251"
-            forge: "52.1.9"
+            forge: "52.1.16"
             java: "21"
+            official: "false"
           - mc: "1.21.1"
             loader: neoforge
             module: ":neoforge:build"
             yarn: "1.21.1+build.3"
-            fapi: "0.109.0+1.21.1"
+            fapi: "0.116.9+1.21.1"
             neo: "21.1.251"
-            forge: "52.1.9"
+            forge: "52.1.16"
             java: "21"
+            official: "false"
           - mc: "1.21.1"
             loader: forge
             module: ":forge:build"
             yarn: "1.21.1+build.3"
-            fapi: "0.109.0+1.21.1"
+            fapi: "0.116.9+1.21.1"
             neo: "21.1.251"
-            forge: "52.1.9"
+            forge: "52.1.16"
             java: "21"
+            official: "false"
+          # 1.21.2: Forge hat KEIN Artefakt (Metadaten-Beleg), daher nur fabric+neoforge.
+          # forge-Feld = Platzhalter 53.1.12 (naechste reale Forge-Linie), wird nie gebaut.
+          - mc: "1.21.2"
+            loader: fabric
+            module: ":fabric:build"
+            yarn: "1.21.2+build.1"
+            fapi: "0.106.1+1.21.2"
+            neo: "21.2.1-beta"
+            forge: "53.1.12"
+            java: "21"
+            official: "false"
+          - mc: "1.21.2"
+            loader: neoforge
+            module: ":neoforge:build"
+            yarn: "1.21.2+build.1"
+            fapi: "0.106.1+1.21.2"
+            neo: "21.2.1-beta"
+            forge: "53.1.12"
+            java: "21"
+            official: "false"
+          - mc: "1.21.3"
+            loader: fabric
+            module: ":fabric:build"
+            yarn: "1.21.3+build.2"
+            fapi: "0.114.1+1.21.3"
+            neo: "21.3.97"
+            forge: "53.1.12"
+            java: "21"
+            official: "false"
+          - mc: "1.21.3"
+            loader: neoforge
+            module: ":neoforge:build"
+            yarn: "1.21.3+build.2"
+            fapi: "0.114.1+1.21.3"
+            neo: "21.3.97"
+            forge: "53.1.12"
+            java: "21"
+            official: "false"
+          - mc: "1.21.3"
+            loader: forge
+            module: ":forge:build"
+            yarn: "1.21.3+build.2"
+            fapi: "0.114.1+1.21.3"
+            neo: "21.3.97"
+            forge: "53.1.12"
+            java: "21"
+            official: "false"
           - mc: "1.21.4"
             loader: fabric
             module: ":fabric:build"
             yarn: "1.21.4+build.8"
             fapi: "0.119.4+1.21.4"
             neo: "21.4.157"
-            forge: "54.1.8"
+            forge: "54.1.18"
             java: "21"
+            official: "false"
           - mc: "1.21.4"
             loader: neoforge
             module: ":neoforge:build"
             yarn: "1.21.4+build.8"
             fapi: "0.119.4+1.21.4"
             neo: "21.4.157"
-            forge: "54.1.8"
+            forge: "54.1.18"
             java: "21"
+            official: "false"
           - mc: "1.21.4"
             loader: forge
             module: ":forge:build"
             yarn: "1.21.4+build.8"
             fapi: "0.119.4+1.21.4"
             neo: "21.4.157"
-            forge: "54.1.8"
+            forge: "54.1.18"
             java: "21"
+            official: "false"
+          - mc: "1.21.5"
+            loader: fabric
+            module: ":fabric:build"
+            yarn: "1.21.5+build.1"
+            fapi: "0.128.2+1.21.5"
+            neo: "21.5.98"
+            forge: "55.1.13"
+            java: "21"
+            official: "false"
+          - mc: "1.21.5"
+            loader: neoforge
+            module: ":neoforge:build"
+            yarn: "1.21.5+build.1"
+            fapi: "0.128.2+1.21.5"
+            neo: "21.5.98"
+            forge: "55.1.13"
+            java: "21"
+            official: "false"
+          - mc: "1.21.5"
+            loader: forge
+            module: ":forge:build"
+            yarn: "1.21.5+build.1"
+            fapi: "0.128.2+1.21.5"
+            neo: "21.5.98"
+            forge: "55.1.13"
+            java: "21"
+            official: "false"
+          - mc: "1.21.6"
+            loader: fabric
+            module: ":fabric:build"
+            yarn: "1.21.6+build.1"
+            fapi: "0.128.2+1.21.6"
+            neo: "21.6.20-beta"
+            forge: "56.0.9"
+            java: "21"
+            official: "false"
+          - mc: "1.21.6"
+            loader: neoforge
+            module: ":neoforge:build"
+            yarn: "1.21.6+build.1"
+            fapi: "0.128.2+1.21.6"
+            neo: "21.6.20-beta"
+            forge: "56.0.9"
+            java: "21"
+            official: "false"
+          - mc: "1.21.6"
+            loader: forge
+            module: ":forge:build"
+            yarn: "1.21.6+build.1"
+            fapi: "0.128.2+1.21.6"
+            neo: "21.6.20-beta"
+            forge: "56.0.9"
+            java: "21"
+            official: "false"
+          - mc: "1.21.7"
+            loader: fabric
+            module: ":fabric:build"
+            yarn: "1.21.7+build.8"
+            fapi: "0.129.0+1.21.7"
+            neo: "21.7.25-beta"
+            forge: "57.0.3"
+            java: "21"
+            official: "false"
+          - mc: "1.21.7"
+            loader: neoforge
+            module: ":neoforge:build"
+            yarn: "1.21.7+build.8"
+            fapi: "0.129.0+1.21.7"
+            neo: "21.7.25-beta"
+            forge: "57.0.3"
+            java: "21"
+            official: "false"
+          - mc: "1.21.7"
+            loader: forge
+            module: ":forge:build"
+            yarn: "1.21.7+build.8"
+            fapi: "0.129.0+1.21.7"
+            neo: "21.7.25-beta"
+            forge: "57.0.3"
+            java: "21"
+            official: "false"
           - mc: "1.21.8"
             loader: fabric
             module: ":fabric:build"
             yarn: "1.21.8+build.1"
             fapi: "0.136.1+1.21.8"
             neo: "21.8.54"
-            forge: "58.1.9"
+            forge: "58.1.22"
             java: "21"
+            official: "false"
           - mc: "1.21.8"
             loader: neoforge
             module: ":neoforge:build"
             yarn: "1.21.8+build.1"
             fapi: "0.136.1+1.21.8"
             neo: "21.8.54"
-            forge: "58.1.9"
+            forge: "58.1.22"
             java: "21"
+            official: "false"
           - mc: "1.21.8"
             loader: forge
             module: ":forge:build"
             yarn: "1.21.8+build.1"
             fapi: "0.136.1+1.21.8"
             neo: "21.8.54"
-            forge: "58.1.9"
+            forge: "58.1.22"
             java: "21"
+            official: "false"
+          - mc: "1.21.9"
+            loader: fabric
+            module: ":fabric:build"
+            yarn: "1.21.9+build.1"
+            fapi: "0.134.1+1.21.9"
+            neo: "21.9.16-beta"
+            forge: "59.0.5"
+            java: "21"
+            official: "false"
+          - mc: "1.21.9"
+            loader: neoforge
+            module: ":neoforge:build"
+            yarn: "1.21.9+build.1"
+            fapi: "0.134.1+1.21.9"
+            neo: "21.9.16-beta"
+            forge: "59.0.5"
+            java: "21"
+            official: "false"
+          - mc: "1.21.9"
+            loader: forge
+            module: ":forge:build"
+            yarn: "1.21.9+build.1"
+            fapi: "0.134.1+1.21.9"
+            neo: "21.9.16-beta"
+            forge: "59.0.5"
+            java: "21"
+            official: "false"
+          - mc: "1.21.10"
+            loader: fabric
+            module: ":fabric:build"
+            yarn: "1.21.10+build.3"
+            fapi: "0.138.4+1.21.10"
+            neo: "21.10.64"
+            forge: "60.1.15"
+            java: "21"
+            official: "false"
+          - mc: "1.21.10"
+            loader: neoforge
+            module: ":neoforge:build"
+            yarn: "1.21.10+build.3"
+            fapi: "0.138.4+1.21.10"
+            neo: "21.10.64"
+            forge: "60.1.15"
+            java: "21"
+            official: "false"
+          - mc: "1.21.10"
+            loader: forge
+            module: ":forge:build"
+            yarn: "1.21.10+build.3"
+            fapi: "0.138.4+1.21.10"
+            neo: "21.10.64"
+            forge: "60.1.15"
+            java: "21"
+            official: "false"
           - mc: "1.21.11"
             loader: fabric
             module: ":fabric:build"
@@ -119,6 +347,7 @@ jobs:
             neo: "21.11.45"
             forge: "61.2.1"
             java: "21"
+            official: "false"
           - mc: "1.21.11"
             loader: neoforge
             module: ":neoforge:build"
@@ -127,6 +356,7 @@ jobs:
             neo: "21.11.45"
             forge: "61.2.1"
             java: "21"
+            official: "false"
           - mc: "1.21.11"
             loader: forge
             module: ":forge:build"
@@ -135,10 +365,72 @@ jobs:
             neo: "21.11.45"
             forge: "61.2.1"
             java: "21"
-          # 26.x: Gradle konfiguriert ALLE Module (settings.gradle), :fabric loest
-          # Yarn schon in der Config-Phase auf. Da kein Yarn-26.x existiert, steht
-          # hier das neueste echte Yarn als reiner Config-Platzhalter (fabric wird
-          # in diesen Zeilen nie gebaut); Forge-Koordinate ebenfalls echt.
+            official: "false"
+          # 26.x: yarn = Config-Platzhalter (neuestes echtes Yarn), official=true
+          # loest :fabric-Config ohne Yarn auf. FAPI/Neo/Forge = neueste je Linie.
+          - mc: "26.1"
+            loader: fabric
+            module: ":fabric:build"
+            yarn: "1.21.11+build.6"
+            fapi: "0.145.1+26.1"
+            neo: "26.1.0.19-beta"
+            forge: "62.0.9"
+            java: "25"
+            official: "true"
+          - mc: "26.1"
+            loader: neoforge
+            module: ":neoforge:build"
+            yarn: "1.21.11+build.6"
+            fapi: "0.145.1+26.1"
+            neo: "26.1.0.19-beta"
+            forge: "62.0.9"
+            java: "25"
+            official: "true"
+          - mc: "26.1"
+            loader: forge
+            module: ":forge:build"
+            yarn: "1.21.11+build.6"
+            fapi: "0.145.1+26.1"
+            neo: "26.1.0.19-beta"
+            forge: "62.0.9"
+            java: "25"
+            official: "true"
+          - mc: "26.1.1"
+            loader: fabric
+            module: ":fabric:build"
+            yarn: "1.21.11+build.6"
+            fapi: "0.145.4+26.1.1"
+            neo: "26.1.1.15-beta"
+            forge: "63.0.2"
+            java: "25"
+            official: "true"
+          - mc: "26.1.1"
+            loader: neoforge
+            module: ":neoforge:build"
+            yarn: "1.21.11+build.6"
+            fapi: "0.145.4+26.1.1"
+            neo: "26.1.1.15-beta"
+            forge: "63.0.2"
+            java: "25"
+            official: "true"
+          - mc: "26.1.1"
+            loader: forge
+            module: ":forge:build"
+            yarn: "1.21.11+build.6"
+            fapi: "0.145.4+26.1.1"
+            neo: "26.1.1.15-beta"
+            forge: "63.0.2"
+            java: "25"
+            official: "true"
+          - mc: "26.1.2"
+            loader: fabric
+            module: ":fabric:build"
+            yarn: "1.21.11+build.6"
+            fapi: "0.155.3+26.1.2"
+            neo: "26.1.2.109"
+            forge: "64.1.3"
+            java: "25"
+            official: "true"
           - mc: "26.1.2"
             loader: neoforge
             module: ":neoforge:build"
@@ -147,6 +439,25 @@ jobs:
             neo: "26.1.2.109"
             forge: "64.1.3"
             java: "25"
+            official: "true"
+          - mc: "26.1.2"
+            loader: forge
+            module: ":forge:build"
+            yarn: "1.21.11+build.6"
+            fapi: "0.155.3+26.1.2"
+            neo: "26.1.2.109"
+            forge: "64.1.3"
+            java: "25"
+            official: "true"
+          - mc: "26.2"
+            loader: fabric
+            module: ":fabric:build"
+            yarn: "1.21.11+build.6"
+            fapi: "0.161.0+26.2"
+            neo: "26.2.0.88"
+            forge: "65.1.3"
+            java: "25"
+            official: "true"
           - mc: "26.2"
             loader: neoforge
             module: ":neoforge:build"
@@ -155,6 +466,43 @@ jobs:
             neo: "26.2.0.88"
             forge: "65.1.3"
             java: "25"
+            official: "true"
+          - mc: "26.2"
+            loader: forge
+            module: ":forge:build"
+            yarn: "1.21.11+build.6"
+            fapi: "0.161.0+26.2"
+            neo: "26.2.0.88"
+            forge: "65.1.3"
+            java: "25"
+            official: "true"
+          - mc: "26.3"
+            loader: fabric
+            module: ":fabric:build"
+            yarn: "1.21.11+build.6"
+            fapi: "0.161.0+26.3"
+            neo: "26.3.0.8-beta"
+            forge: "66.0.2"
+            java: "25"
+            official: "true"
+          - mc: "26.3"
+            loader: neoforge
+            module: ":neoforge:build"
+            yarn: "1.21.11+build.6"
+            fapi: "0.161.0+26.3"
+            neo: "26.3.0.8-beta"
+            forge: "66.0.2"
+            java: "25"
+            official: "true"
+          - mc: "26.3"
+            loader: forge
+            module: ":forge:build"
+            yarn: "1.21.11+build.6"
+            fapi: "0.161.0+26.3"
+            neo: "26.3.0.8-beta"
+            forge: "66.0.2"
+            java: "25"
+            official: "true"
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-java@v5
@@ -169,6 +517,7 @@ jobs:
           gradle
           -Pminecraft_version=${{ matrix.mc }}
           -Pyarn_mappings=${{ matrix.yarn }}
+          -Puse_official_mappings=${{ matrix.official }}
           -Pfabric_api_version=${{ matrix.fapi }}
           -Pneoforge_version=${{ matrix.neo }}
           -Pforge_version=${{ matrix.forge }}

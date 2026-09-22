@@ -20,9 +20,17 @@ sourceSets {
 
 dependencies {
     val mc = providers.gradleProperty("minecraft_version").get()
-    val yarn = providers.gradleProperty("yarn_mappings").get()
+    // 26.x hat kein Yarn/Intermediary (Metadaten-Beleg docs/support-matrix.md).
+    // Per Owner-Vorgabe: dann offizielle Mojang-Mappings via Loom,
+    // umschaltbar per -Puse_official_mappings=true (Default false = Yarn).
+    val useOfficial = providers.gradleProperty("use_official_mappings").getOrElse("false").toBoolean()
     minecraft("com.mojang:minecraft:$mc")
-    mappings("net.fabricmc:yarn:$yarn:v2")
+    if (useOfficial) {
+        mappings(loom.officialMojangMappings())
+    } else {
+        val yarn = providers.gradleProperty("yarn_mappings").get()
+        mappings("net.fabricmc:yarn:$yarn:v2")
+    }
     modImplementation("net.fabricmc:fabric-loader:${providers.gradleProperty("fabric_loader_version").get()}")
     modImplementation("net.fabricmc.fabric-api:fabric-api:${providers.gradleProperty("fabric_api_version").get()}")
 }
