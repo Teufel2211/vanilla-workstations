@@ -8,3 +8,6 @@ out/
 .vscode/
 .DS_Store
 local.properties
+
+.project
+.settings/
