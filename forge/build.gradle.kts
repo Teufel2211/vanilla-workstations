@@ -29,11 +29,20 @@ minecraft {
     mappings("official", providers.gradleProperty("minecraft_version").get())
     runs {
         register("client") {
+            workingDir.convention(layout.projectDirectory.dir("run"))
         }
         register("server") {
+            workingDir.convention(layout.projectDirectory.dir("run"))
             args("--nogui")
         }
     }
+}
+
+repositories {
+    minecraft.mavenizer(this)
+    maven(fg.forgeMaven)
+    maven(fg.minecraftLibsMaven)
+    mavenCentral()
 }
 
 dependencies {
@@ -41,4 +50,5 @@ dependencies {
     val fg = providers.gradleProperty("forge_version").get()
     // FG7: Minecraft-Abhaengigkeit ueber minecraft.dependency(..) als implementation.
     implementation(minecraft.dependency("net.minecraftforge:forge:$mc-$fg"))
+    annotationProcessor("net.minecraftforge:eventbus-validator:7.0.5")
 }
