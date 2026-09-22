@@ -1,6 +1,6 @@
 plugins {
     java
-    id("fabric-loom").version("1.7.4")
+    id("fabric-loom").version("1.18.2")
 }
 
 group = providers.gradleProperty("mod_group").get()
