@@ -1,5 +1,6 @@
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.language.jvm.tasks.ProcessResources
 
@@ -28,5 +29,11 @@ subprojects {
         filesMatching(listOf("fabric.mod.json", "quilt.mod.json", "*.toml")) {
             expand(mapOf("version" to ver))
         }
+    }
+
+    tasks.withType<Jar> {
+        // sourcesJar vereinigt gecheckte + generierte Ressourcen
+        // (z.B. fabric.mod.json doppelt) -> erste Datei gewinnt.
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
 }
