@@ -1,3 +1,4 @@
+import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.language.jvm.tasks.ProcessResources
@@ -18,6 +19,10 @@ subprojects {
     }
 
     tasks.withType<ProcessResources> {
+        // Loader-Plugins (Loom/ModDev) legen zusaetzlich generierte Ressourcen
+        // (z.B. quilt.mod.json, neoforge.mods.toml) neben die gecheckten Dateien;
+        // Gradle 9 bricht bei Duplikaten ab -> erste Datei gewinnt.
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
         val ver = providers.gradleProperty("mod_version").get()
         inputs.property("version", ver)
         filesMatching(listOf("fabric.mod.json", "quilt.mod.json", "*.toml")) {

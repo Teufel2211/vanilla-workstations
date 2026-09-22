@@ -1,5 +1,8 @@
 // Forge nur fuer 1.21.x. Kein 26.x CalVer-Support durch Forge.
 // Fuer 26.x bitte den NeoForge-Build nutzen.
+// HINWEIS: Forge-Build ist experimentell (CI: continue-on-error, siehe Issue #1).
+// Stand Sep 2026: :forge:compileJava braucht noch fehlende Deps (fml-Modklasse,
+// Gson aus shared/ModConfig) - nicht ewig iterieren, erst lokal verifizieren.
 plugins {
     `java-library`
     id("net.minecraftforge.gradle").version("7.0.40")
