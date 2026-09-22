@@ -24,14 +24,133 @@ jobs:
           gradle-version: 9.7.1
       - run: gradle :fabric:build --no-daemon
 
-  # NeoForge + Forge: experimentell bis lokal verifiziert (siehe Issue #1).
-  # Gleiche Runtime (JVM 25), damit Settings-Konfiguration (:fabric) nicht schon failt.
-  loaders-experimental:
+  # Matrix: EIN Run baut alle MC-Linien x Loader. Versionen je Kombi per -P-Override
+  # (Skripte lesen alles via providers.gradleProperty). Pins gegen Maven verifiziert
+  # (Stand 2026-09-22, Details docs/support-matrix.md). Nur geschlossene Saetze:
+  # Fabric braucht Yarn (kein Yarn fuer 26.x -> kein Fabric-26.x); Forge nur 1.21.x;
+  # NeoForge-26.3 nur Beta -> 26.3 ausgelassen. Include-Liste statt mc-x-loader-Kartesisch,
+  # weil Deps pro MC-Linie unterschiedlich pinnen (kein exclude noetig).
+  # Runtime fix JVM 25 (Loom-1.18.2-Pflicht); -Pjava_version steuert das Code-Target
+  # (21 fuer 1.21.x, 25 fuer 26.x). fail-fast:false -> volle Status-Tabelle pro Run.
+  # Artefakte nur als Build-Artefakte (NICHT im GitHub Release).
+  build:
     runs-on: ubuntu-24.04
-    continue-on-error: true
     strategy:
+      fail-fast: false
       matrix:
-        module: [":neoforge:build", ":forge:build"]
+        include:
+          - mc: "1.21.1"
+            loader: fabric
+            module: ":fabric:build"
+            yarn: "1.21.1+build.3"
+            fapi: "0.109.0+1.21.1"
+            neo: "21.1.251"
+            forge: "52.1.9"
+            java: "21"
+          - mc: "1.21.1"
+            loader: neoforge
+            module: ":neoforge:build"
+            yarn: "1.21.1+build.3"
+            fapi: "0.109.0+1.21.1"
+            neo: "21.1.251"
+            forge: "52.1.9"
+            java: "21"
+          - mc: "1.21.1"
+            loader: forge
+            module: ":forge:build"
+            yarn: "1.21.1+build.3"
+            fapi: "0.109.0+1.21.1"
+            neo: "21.1.251"
+            forge: "52.1.9"
+            java: "21"
+          - mc: "1.21.4"
+            loader: fabric
+            module: ":fabric:build"
+            yarn: "1.21.4+build.8"
+            fapi: "0.119.4+1.21.4"
+            neo: "21.4.157"
+            forge: "54.1.8"
+            java: "21"
+          - mc: "1.21.4"
+            loader: neoforge
+            module: ":neoforge:build"
+            yarn: "1.21.4+build.8"
+            fapi: "0.119.4+1.21.4"
+            neo: "21.4.157"
+            forge: "54.1.8"
+            java: "21"
+          - mc: "1.21.4"
+            loader: forge
+            module: ":forge:build"
+            yarn: "1.21.4+build.8"
+            fapi: "0.119.4+1.21.4"
+            neo: "21.4.157"
+            forge: "54.1.8"
+            java: "21"
+          - mc: "1.21.8"
+            loader: fabric
+            module: ":fabric:build"
+            yarn: "1.21.8+build.1"
+            fapi: "0.136.1+1.21.8"
+            neo: "21.8.54"
+            forge: "58.1.9"
+            java: "21"
+          - mc: "1.21.8"
+            loader: neoforge
+            module: ":neoforge:build"
+            yarn: "1.21.8+build.1"
+            fapi: "0.136.1+1.21.8"
+            neo: "21.8.54"
+            forge: "58.1.9"
+            java: "21"
+          - mc: "1.21.8"
+            loader: forge
+            module: ":forge:build"
+            yarn: "1.21.8+build.1"
+            fapi: "0.136.1+1.21.8"
+            neo: "21.8.54"
+            forge: "58.1.9"
+            java: "21"
+          - mc: "1.21.11"
+            loader: fabric
+            module: ":fabric:build"
+            yarn: "1.21.11+build.6"
+            fapi: "0.141.6+1.21.11"
+            neo: "21.11.45"
+            forge: "61.2.1"
+            java: "21"
+          - mc: "1.21.11"
+            loader: neoforge
+            module: ":neoforge:build"
+            yarn: "1.21.11+build.6"
+            fapi: "0.141.6+1.21.11"
+            neo: "21.11.45"
+            forge: "61.2.1"
+            java: "21"
+          - mc: "1.21.11"
+            loader: forge
+            module: ":forge:build"
+            yarn: "1.21.11+build.6"
+            fapi: "0.141.6+1.21.11"
+            neo: "21.11.45"
+            forge: "61.2.1"
+            java: "21"
+          - mc: "26.1.2"
+            loader: neoforge
+            module: ":neoforge:build"
+            yarn: "n/a"
+            fapi: "0.155.3+26.1.2"
+            neo: "26.1.2.109"
+            forge: "n/a"
+            java: "25"
+          - mc: "26.2"
+            loader: neoforge
+            module: ":neoforge:build"
+            yarn: "n/a"
+            fapi: "0.161.0+26.2"
+            neo: "26.2.0.88"
+            forge: "n/a"
+            java: "25"
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-java@v5
@@ -41,7 +160,21 @@ jobs:
       - uses: gradle/actions/setup-gradle@v5
         with:
           gradle-version: 9.7.1
-      - run: gradle ${{ matrix.module }} --no-daemon
+      - name: Build ${{ matrix.loader }} fuer MC ${{ matrix.mc }}
+        run: >
+          gradle
+          -Pminecraft_version=${{ matrix.mc }}
+          -Pyarn_mappings=${{ matrix.yarn }}
+          -Pfabric_api_version=${{ matrix.fapi }}
+          -Pneoforge_version=${{ matrix.neo }}
+          -Pforge_version=${{ matrix.forge }}
+          -Pjava_version=${{ matrix.java }}
+          ${{ matrix.module }} --no-daemon
+      - uses: actions/upload-artifact@v5
+        with:
+          name: vanilla-workstations-${{ matrix.mc }}-${{ matrix.loader }}
+          path: ${{ matrix.loader }}/build/libs/*.jar
+          if-no-files-found: warn
 
   # Autotag: bei jedem main-Push automatisch Patch-Tag erstellen (vX.Y.Z -> vX.Y.(Z+1))
   # + Release im SELBEN Run bauen (GITHUB_TOKEN-Tag-Push triggert per GitHub-Design

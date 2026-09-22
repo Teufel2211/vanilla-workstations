@@ -12,25 +12,34 @@ der Fabric-Build enthält `quilt.mod.json` und läuft mit QFAPI.
 - **Forge:** nur 1.21.x (1.21.1 = Forge 52.x). **Kein 26.x CalVer-Support.**
 - **Quilt:** läuft über den Fabric-Jar (kein separates Build).
 
-## Versionen (verifiziert Sep 2026)
+## Versionen (gegen Maven verifiziert, Stand 2026-09-22, CI-Matrix in build.yml)
 
-| Linie | Branch | MC | Yarn | Fabric Loader/API | NeoForge | Forge | Java |
-|-------|--------|----|------|-------------------|----------|-------|------|
-| 1.21.1 | `main` | 1.21.1 | 1.21.1+build.3 | 0.16.14 / 0.109.0+1.21.1 | 21.1.251 | 1.21.1-52.1.9 | 21 |
-| 1.21.4 | `mc/1.21.4` | TODO | TODO | TODO | TODO | 1.21.4-5x | 21 |
-| 26.1 | `mc/26.1` | TODO | TODO | TODO | NeoForge-26.x | — | 25 |
-| 26.2/26.3 | `mc/26.x` | TODO | TODO | TODO | NeoForge-26.x | — | 25 |
+| MC | Yarn | Fabric API | NeoForge | Forge (kurz) | Java | Loader in Matrix |
+|----|------|------------|----------|--------------|------|------------------|
+| 1.21.1 | 1.21.1+build.3 | 0.109.0+1.21.1 (Baseline-Pin) | 21.1.251 | 52.1.9 | 21 | fabric, neoforge, forge |
+| 1.21.4 | 1.21.4+build.8 | 0.119.4+1.21.4 | 21.4.157 | 54.1.8 | 21 | fabric, neoforge, forge |
+| 1.21.8 | 1.21.8+build.1 | 0.136.1+1.21.8 | 21.8.54 | 58.1.9 | 21 | fabric, neoforge, forge |
+| 1.21.11 | 1.21.11+build.6 | 0.141.6+1.21.11 | 21.11.45 | 61.2.1 | 21 | fabric, neoforge, forge |
+| 26.1.2 | — (kein Yarn) | 0.155.3+26.1.2 | 26.1.2.109 | — | 25 | neoforge |
+| 26.2 | — (kein Yarn) | 0.161.0+26.2 | 26.2.0.88 | — | 25 | neoforge |
 
-TODO = beim Anlegen gegen Maven verifizieren (Muster siehe Verifizierung unten),
-nicht blind übernehmen.
+Ausgelassen (begruendet): **26.3** (Mojang-Release vom 2026-09-15, FAPI
+0.161.0+26.3 vorhanden, aber NeoForge nur Beta 26.3.0.0–0.8, kein Yarn/Intermediary
+fuer 26.x) sowie **Fabric-26.x** generell (Yarn- und Intermediary-Metadaten enthalten
+kein einziges 26.x-Mapping) und **Forge-26.x** (in Maven vorhanden, z. B.
+26.3-66.0.2, aber per Vorgabe nur 1.21.x in der Matrix). Zwischen-Patches
+(1.21.2/1.21.3/1.21.5–1.21.7/1.21.9/1.21.10, 26.1/26.1.1) teils ohne stabile
+NeoForge-Linie (21.2/21.6/21.7/21.9 = 0 stabile) und daher nicht als geschlossener
+Satz baubar; abgedeckt ueber frueh/mitte/spaet/latest-Samples der 1.21-Linie.
 
 ## Toolchain (verifiziert)
 
 - Fabric Loom 1.18.2, NeoForge ModDev 2.0.147, ForgeGradle 7.0.40, Gradle 9.7.1.
 - CI-Runtime: JVM 25 (Loom-1.18.2-Pflicht: JVM >= 25 + Gradle-Plugin-API 9.7.0);
   Code-Target bleibt Java 21 fuer MC 1.21.1.
-- CI: `:fabric:build` ist Pflicht (gruen). NeoForge/Forge laufen als
-  `loaders-experimental` mit `continue-on-error` bis lokal verifiziert (Issue #1).
+- CI: `:fabric:build` (Baseline 1.21.1) ist Pflicht (gruen, Release-Gate).
+  Zusaetzlich baut der Matrix-Job `build` alle Tabellen-Kombis per -P-Override
+  (`fail-fast: false`, Artefakte via upload-artifact, nicht im Release).
 - Stand Sep 2026: NeoForge kompiliert, scheitert nur an doppelter
   `META-INF/neoforge.mods.toml` (gecheckt vs. ModDev-generiert) - via
   `duplicatesStrategy = EXCLUDE` abgefangen. Forge braucht noch fehlende
