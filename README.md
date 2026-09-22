@@ -17,7 +17,7 @@ Vanilla-Fit, keine neuen Erze, keine neuen Mobs.
 
 | MC | Fabric | NeoForge | Forge | Quilt |
 |----|--------|----------|-------|-------|
-| 1.21.1 (main) | ✅ | 🚧 exp. | 🚧 exp. | ✅ via Fabric-Jar |
+| 1.21.1 (main) | ✅ | ✅ | ✅ | ✅ via Fabric-Jar |
 | 1.21.4 / 26.x | Branches `mc/<version>` | dito | nur 1.21.x (Forge kann kein 26.x) | via Fabric-Jar |
 
 Details: `docs/support-matrix.md`. Quilt braucht kein eigenes Jar:
