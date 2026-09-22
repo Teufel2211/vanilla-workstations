@@ -8,7 +8,7 @@ on:
 
 jobs:
   # Fabric: Pflicht, muss gruen sein (alle Versionen verifiziert).
-  # Loom 1.18.2 braucht JVM 25 als Gradle-Runtime; Code-Target bleibt 21 (java_version).
+  # Loom 1.18.2 braucht JVM 25 + Gradle >= 9.7 (Plugin-API 9.7.0); Code-Target bleibt 21.
   fabric:
     runs-on: ubuntu-latest
     steps:
@@ -19,7 +19,7 @@ jobs:
           java-version: 25
       - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: 9.3.0
+          gradle-version: 9.7.1
       - run: gradle :fabric:build --no-daemon
 
   # NeoForge + Forge: experimentell bis lokal verifiziert (siehe Issue #1).
@@ -38,7 +38,7 @@ jobs:
           java-version: 25
       - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: 9.3.0
+          gradle-version: 9.7.1
       - run: gradle ${{ matrix.module }} --no-daemon
 
   # Nur GitHub Releases. Kein Modrinth/CurseForge-Publish.
@@ -56,7 +56,7 @@ jobs:
           java-version: 25
       - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: 9.3.0
+          gradle-version: 9.7.1
       - run: gradle :fabric:remapJar --no-daemon
       - uses: softprops/action-gh-release@v2
         with:
