@@ -21,23 +21,14 @@ sourceSets {
 }
 
 minecraft {
-    mappings(channel = "official", version = providers.gradleProperty("minecraft_version").get())
+    // FG7-Kotlin-DSL (vgl. MinecraftForge/MDKExamples traditional-mdk/fg7-kotlin):
+    // mappings positional, Runs via register, kein mods{}-Block (Source-Sets werden gemergt).
+    mappings("official", providers.gradleProperty("minecraft_version").get())
     runs {
-        create("client") {
-            workingDirectory(project.file("run"))
-            mods {
-                create("vanilla_workstations") {
-                    source(sourceSets.main.get())
-                }
-            }
+        register("client") {
         }
-        create("server") {
-            workingDirectory(project.file("run"))
-            mods {
-                create("vanilla_workstations") {
-                    source(sourceSets.main.get())
-                }
-            }
+        register("server") {
+            args("--nogui")
         }
     }
 }
@@ -45,5 +36,6 @@ minecraft {
 dependencies {
     val mc = providers.gradleProperty("minecraft_version").get()
     val fg = providers.gradleProperty("forge_version").get()
-    minecraft("net.minecraftforge:forge:$mc-$fg")
+    // FG7: Minecraft-Abhaengigkeit ueber minecraft.dependency(..) als implementation.
+    implementation(minecraft.dependency("net.minecraftforge:forge:$mc-$fg"))
 }
