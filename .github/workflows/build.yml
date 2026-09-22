@@ -135,21 +135,25 @@ jobs:
             neo: "21.11.45"
             forge: "61.2.1"
             java: "21"
+          # 26.x: Gradle konfiguriert ALLE Module (settings.gradle), :fabric loest
+          # Yarn schon in der Config-Phase auf. Da kein Yarn-26.x existiert, steht
+          # hier das neueste echte Yarn als reiner Config-Platzhalter (fabric wird
+          # in diesen Zeilen nie gebaut); Forge-Koordinate ebenfalls echt.
           - mc: "26.1.2"
             loader: neoforge
             module: ":neoforge:build"
-            yarn: "n/a"
+            yarn: "1.21.11+build.6"
             fapi: "0.155.3+26.1.2"
             neo: "26.1.2.109"
-            forge: "n/a"
+            forge: "64.1.3"
             java: "25"
           - mc: "26.2"
             loader: neoforge
             module: ":neoforge:build"
-            yarn: "n/a"
+            yarn: "1.21.11+build.6"
             fapi: "0.161.0+26.2"
             neo: "26.2.0.88"
-            forge: "n/a"
+            forge: "65.1.3"
             java: "25"
     steps:
       - uses: actions/checkout@v5
