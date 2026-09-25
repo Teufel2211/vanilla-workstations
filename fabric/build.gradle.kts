@@ -31,7 +31,7 @@ dependencies {
         val yarn = providers.gradleProperty("yarn_mappings").get()
         mappings("net.fabricmc:yarn:$yarn:v2")
     }
-    modImplementation("net.fabricmc:fabric-loader:${providers.gradleProperty("fabric_loader_version").get()}")
+    modImplementation("net.fabricmc:fabric-loader:${providers.gradleProperty("fabric_loader_version").getOrElse("0.16.14").let { if (it.isBlank()) "0.16.14" else it }}")
     modImplementation("net.fabricmc.fabric-api:fabric-api:${providers.gradleProperty("fabric_api_version").get()}")
 }
 

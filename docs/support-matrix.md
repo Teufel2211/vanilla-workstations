@@ -7,12 +7,24 @@ der Fabric-Build enthält `quilt.mod.json` und läuft mit QFAPI.
 
 ## Loader-Wahrheiten
 
-- **Fabric:** 1.21.x via Yarn (alle 12 Linien verifiziert). 26.x versucht via
-  offizielle Mojang-Mappings (`loom.officialMojangMappings()`, Schalter
-  `-Puse_official_mappings=true` in `fabric/build.gradle.kts`), scheitert aber
-  hart: Loom-1.18.2 meldet `Failed to find official mojang mappings for 26.x`
-  (Run 35748824609, alle 5 Fabric-26.x-Jobs). Yarn/Intermediary enthalten NULL
-  26.x. Darum **kein Fabric-26.x** in der Matrix.
+- **Fabric:** 1.21.x via Yarn im Modul `:fabric` (Remap-Loom `fabric-loom`
+  legacy-ID, alle 12 Linien verifiziert). 26.1+ ist UNOBFUSZIERT (Mojang
+  liefert lesbaren Code mit Parameternamen) und laeuft ueber das zweite Modul
+  `:fabric26` mit No-Remap-Loom (`net.fabricmc.fabric-loom`): KEINE
+  `mappings(...)`-Dependency (weder Yarn noch officialMojangMappings),
+  `implementation` statt `modImplementation`, Artefakt aus `jar`/`build`
+  (remapJar existiert dort nicht). Yarn/Intermediary sind tot (enden bei
+  1.21.11, Yarn-Repo 2025 deprecated); Mojang-`client_mappings` fuer 26.x
+  existieren nicht (Loom-1.18.2 `Failed to find official mojang mappings
+  for 26.x`, Run 35748824609) – der alte `-Puse_official_mappings`-Ansatz
+  konnte nie funktionieren. Belege: https://docs.fabricmc.net/develop/porting/mappings
+  (Abschnitt „Minecraft 26.1 is unobfuscated… no need for any obfuscation
+  mappings"), https://fabricmc.net/2025/10/31/obfuscation.html,
+  https://github.com/FabricMC/fabric-loom/issues/1585 (exakt unser Fehler),
+  Plugin-IDs + Dependency-Configs:
+  https://raw.githubusercontent.com/FabricMC/fabric-docs/main/versions/26.1.2/develop/loom/index.md.
+  Loader 0.19.5 fuer 26.x (kanonisch per fabric-example-mod/26.1),
+  0.16.14 fuer 1.21.x.
 - **NeoForge:** pro MC-Linie eigene Major. Ohne stabile Linie -> neueste Beta
   (21.2.1-beta, 21.6.20-beta, 21.7.25-beta, 21.9.16-beta, 26.1.0.19-beta,
   26.1.1.15-beta, 26.3.0.8-beta). 26.x braucht NeoForge-26.x.
@@ -21,7 +33,7 @@ der Fabric-Build enthält `quilt.mod.json` und läuft mit QFAPI.
   Einzige Luecke: **1.21.2 hat KEIN Forge-Artefakt** (siehe unten).
 - **Quilt:** läuft über den Fabric-Jar (kein separates Build).
 
-## Versionen (NEUESTE Koordinate je Linie, per Invoke-WebRequest gegen Maven verifiziert, Stand 2026-09-22, CI-Matrix in build.yml)
+## Versionen (NEUESTE Koordinate je Linie, per Invoke-WebRequest gegen Maven verifiziert, Stand 2026-09-25, CI-Matrix in build.yml)
 
 | MC | Yarn | Fabric API | NeoForge | Forge (kurz, voll = MC-kurz) | Java | Loader in Matrix |
 |----|------|------------|----------|------------------------------|------|------------------|
@@ -37,15 +49,15 @@ der Fabric-Build enthält `quilt.mod.json` und läuft mit QFAPI.
 | 1.21.9 | 1.21.9+build.1 | 0.134.1+1.21.9 | 21.9.16-beta (kein stabil) | 59.0.5 (1.21.9-59.0.5) | 21 | fabric, neoforge, forge |
 | 1.21.10 | 1.21.10+build.3 | 0.138.4+1.21.10 | 21.10.64 | 60.1.15 (1.21.10-60.1.15) | 21 | fabric, neoforge, forge |
 | 1.21.11 | 1.21.11+build.6 | 0.141.6+1.21.11 | 21.11.45 | 61.2.1 (1.21.11-61.2.1) | 21 | fabric, neoforge, forge |
-| 26.1 | — (kein Yarn, kein Fabric-26.x) | 0.145.1+26.1 | 26.1.0.19-beta (kein stabil) | 62.0.9 (26.1-62.0.9) | 25 | neoforge, forge |
-| 26.1.1 | — (kein Yarn, kein Fabric-26.x) | 0.145.4+26.1.1 | 26.1.1.15-beta (kein stabil) | 63.0.2 (26.1.1-63.0.2) | 25 | neoforge, forge |
-| 26.1.2 | — (kein Yarn, kein Fabric-26.x) | 0.155.3+26.1.2 | 26.1.2.109 | 64.1.3 (26.1.2-64.1.3) | 25 | neoforge, forge |
-| 26.2 | — (kein Yarn, kein Fabric-26.x) | 0.161.0+26.2 | 26.2.0.88 | 65.1.3 (26.2-65.1.3) | 25 | neoforge, forge |
-| 26.3 | — (kein Yarn, kein Fabric-26.x) | 0.161.0+26.3 | 26.3.0.8-beta (kein stabil) | 66.0.2 (26.3-66.0.2) | 25 | neoforge, forge |
+| 26.1 | — (unobfusziert, No-Remap-Loom, Loader 0.19.5) | 0.145.1+26.1 | 26.1.0.19-beta (kein stabil) | 62.0.9 (26.1-62.0.9) | 25 | fabric (:fabric26), neoforge, forge |
+| 26.1.1 | — (unobfusziert, No-Remap-Loom, Loader 0.19.5) | 0.145.4+26.1.1 | 26.1.1.15-beta (kein stabil) | 63.0.2 (26.1.1-63.0.2) | 25 | fabric (:fabric26), neoforge, forge |
+| 26.1.2 | — (unobfusziert, No-Remap-Loom, Loader 0.19.5) | 0.155.3+26.1.2 | 26.1.2.109 | 64.1.3 (26.1.2-64.1.3) | 25 | fabric (:fabric26), neoforge, forge |
+| 26.2 | — (unobfusziert, No-Remap-Loom, Loader 0.19.5) | 0.161.0+26.2 | 26.2.0.88 | 65.1.3 (26.2-65.1.3) | 25 | fabric (:fabric26), neoforge, forge |
+| 26.3 | — (unobfusziert, No-Remap-Loom, Loader 0.19.5) | 0.161.0+26.3 | 26.3.0.8-beta (kein stabil) | 66.0.2 (26.3-66.0.2) | 25 | fabric (:fabric26), neoforge, forge |
 
-Summe: 45 Matrix-Zeilen (17x3 minus forge-1.21.2 minus 5x fabric-26.x).
+Summe: 50 Matrix-Zeilen (17x3 minus forge-1.21.2).
 
-Ausgelassen (je mit hartem Beleg, kein Vermutung):
+Ausgelassen (mit hartem Beleg, keine Vermutung):
 
 1. **forge-1.21.2**.
 `https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml`
@@ -53,35 +65,27 @@ enthaelt NULL `<version>` mit `1.21.2` (per Invoke-WebRequest geprueft:
 `[regex]::Matches($forge,"<version>([^<]*1\.21\.2[^<]*)</version>")` = leer,
 Count 0; alle anderen Linien 1.21-51.0.33 bis 61.2.1 + 26.x vorhanden).
 
-2. **fabric-26.x (26.1, 26.1.1, 26.1.2, 26.2, 26.3)** – doppelt belegt:
-   a) Metadaten: `https://maven.fabricmc.net/net/fabricmc/yarn/maven-metadata.xml`
-      enthaelt NULL `<version>(26\.[^<]*)</version>` (Count 0); ebenso
-      `https://maven.fabricmc.net/net/fabricmc/intermediary/maven-metadata.xml`
-      (NULL 26.x). Geprueft per Invoke-WebRequest 2026-09-22.
-   b) Log: Run https://github.com/Teufel2211/vanilla-workstations/actions/runs/35748824609,
-      alle 5 Fabric-26.x-Jobs X mit `A problem occurred configuring project ':fabric'
-      > Failed to setup Minecraft, java.lang.RuntimeException:
-      Failed to find official mojang mappings for 26.x`
-      (Job-IDs 106817271763/106817271788/106817271878/106817271925/106817272000,
-      Logs via `gh api .../actions/jobs/<id>/logs`).
-   Der `-Puse_official_mappings`-Schalter existiert (fabric/build.gradle.kts),
-   Loom findet aber keine Mojang-Mappings fuer 26.x. Technisch unmoeglich
-   mit Loom 1.18.2. NeoForge/Forge-26.x bleiben drin (Beta explizit gewuenscht,
-   Forge-userdev per HEAD 200 verifiziert).
 Alle anderen Forge-Linien existieren (1.21-51.0.33 bis 1.21.11-61.2.1,
 26.1-62.0.9, 26.1.1-63.0.2, 26.1.2-64.1.3, 26.2-65.1.3, 26.3-66.0.2).
 Fabric-1.21.2/NeoForge-1.21.2-Zeilen nutzen forge-Platzhalter 53.1.12
 (naechste reale Linie, wird nie gebaut, nur fuer :forge-Config).
 
-Belege 26.x-Fabric:
+Belege 26.x-Fabric (No-Remap-Loom statt Mappings):
 `https://maven.fabricmc.net/net/fabricmc/yarn/maven-metadata.xml` enthaelt NULL
 `<version>(26\.[^<]*)</version>`; ebenso
 `https://maven.fabricmc.net/net/fabricmc/intermediary/maven-metadata.xml`
-(NULL 26.x). Darum Fabric-26.x mit `officialMojangMappings()` statt Yarn.
+(NULL 26.x). Darum :fabric26 OHNE `mappings(...)` (vgl. kanonisch
+https://github.com/FabricMC/fabric-example-mod/tree/26.1:
+`id "net.fabricmc.fabric-loom"`, `minecraft "com.mojang:minecraft:..."`,
+`implementation` fuer Loader 0.19.5 + FAPI 0.145.1+26.1).
+Hinweis Quilt: fabric26s `quilt.mod.json` laesst `intermediate_mappings` weg
+(kein Intermediary-26.x vorhanden); Quilt selbst ist nicht in der Matrix.
 
 ## Toolchain (verifiziert)
 
-- Fabric Loom 1.18.2, NeoForge ModDev 2.0.147, ForgeGradle 7.0.40, Gradle 9.7.1.
+- Fabric Loom 1.18.2 (zwei Plugin-IDs: `fabric-loom` legacy = Remap fuer
+  1.21.x in :fabric; `net.fabricmc.fabric-loom` = No-Remap fuer 26.x in
+  :fabric26), NeoForge ModDev 2.0.147, ForgeGradle 7.0.40, Gradle 9.7.1.
 - CI-Runtime: JVM 25 (Loom-1.18.2-Pflicht: JVM >= 25 + Gradle-Plugin-API 9.7.0);
   Code-Target per -Pjava_version (21 fuer 1.21.x, 25 fuer 26.x).
 - CI: `:fabric:build` (Baseline 1.21.1) ist Pflicht (gruen, Release-Gate).

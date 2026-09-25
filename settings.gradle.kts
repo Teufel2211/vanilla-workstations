@@ -21,5 +21,7 @@ dependencyResolutionManagement {
 
 // Kein :common-Modul: geteilte Quellen liegen in /shared und werden
 // pro Loader per srcDir eingebunden (kein Architectury noetig, alles Vanilla-API).
+// :fabric26 = zweites Fabric-Modul fuer 26.x (No-Remap-Loom
+// net.fabricmc.fabric-loom, keine Mappings); teilt sich Quellen mit :fabric.
 rootProject.name = "vanilla-workstations"
-include("fabric", "neoforge", "forge")
+include("fabric", "fabric26", "neoforge", "forge")
